@@ -24,7 +24,13 @@ exports.getRandom = async (req, res) => {
       return res.status(404).json({ message: "Передбачення не знайдено" });
     }
 
-    const random = predictions[Math.floor(Math.random() * predictions.length)];
+    const lastId = req.query.lastId;
+    const available = predictions.filter(
+      (item) => item._id.toString() !== lastId,
+    );
+    const pool = available.length ? available : predictions;
+
+    const random = pool[Math.floor(Math.random() * pool.length)];
     res.json(random);
   } catch (error) {
     res.status(500).json({ message: "Помилка сервера", error: error.message });
@@ -47,7 +53,19 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const prediction = await Prediction.create(getPredictionData(req));
+    const data = getPredictionData(req);
+    const existing = await Prediction.findOne({
+      title: data.title,
+      text: data.text,
+    });
+
+    if (existing) {
+      return res.status(409).json({
+        message: "Таке передбачення вже існує",
+      });
+    }
+
+    const prediction = await Prediction.create(data);
     res.status(201).json(prediction);
   } catch (error) {
     res
