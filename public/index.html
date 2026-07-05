@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Передбачення</title>
+    <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-row">
+            <h1>🔮 Передбачення</h1>
+            <button id="openModalBtn" class="info-btn">Інструкція</button>
+        </div>
+        <p>Додавай нові передбачення або видаляй уже існуючі.</p>
+
+        <form id="predictionForm" class="card form-card">
+            <h2>Додати передбачення</h2>
+            <input type="text" id="title" placeholder="Заголовок" required />
+            <textarea id="text" placeholder="Текст передбачення" required></textarea>
+            <select id="type" required>
+                <option value="">Оберіть тип</option>
+                <option value="Колячний">Колячний</option>
+                <option value="маніглайний">маніглайний</option>
+                <option value="від себе">від себе</option>
+            </select>
+            <input type="text" id="image" placeholder="URL зображення (необов'язково)" />
+            <input type="file" id="imageFile" name="imageFile" accept="image/*" />
+            <button type="submit">Додати</button>
+        </form>
+
+        <div id="predictions" class="predictions"></div>
+    </div>
+
+    <div id="instructionModal" class="modal hidden">
+        <div class="modal-content">
+            <span id="closeModalBtn" class="close-btn">×</span>
+            <h2>📘 Інструкція та API</h2>
+            <div class="modal-body">
+                <h3>Як користуватися</h3>
+                <ol>
+                    <li>Заповни поля у формі додавання.</li>
+                    <li>Натисни кнопку «Додати», щоб створити передбачення.</li>
+                    <li>Кожне передбачення можна видалити кнопкою «Видалити».</li>
+                    <li>Усі дані зберігаються у файлі на сервері.</li>
+                </ol>
+
+                <h3>API маршрути</h3>
+                <ul>
+                    <li><strong>GET /predictions</strong> — отримати всі передбачення</li>
+                    <li><strong>GET /predictions/random</strong> — отримати випадкове</li>
+                    <li><strong>GET /predictions/:id</strong> — отримати за ID</li>
+                    <li><strong>POST /predictions</strong> — додати нове</li>
+                    <li><strong>PUT /predictions/:id</strong> — оновити</li>
+                    <li><strong>DELETE /predictions/:id</strong> — видалити</li>
+                </ul>
+
+                <p><strong>Локальна адреса:</strong> http://localhost:3067</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+
+</html>

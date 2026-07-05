@@ -1,0 +1,93 @@
+const Prediction = require("../models/Prediction");
+
+const getPredictionData = (req) => ({
+  title: req.body.title,
+  text: req.body.text,
+  type: req.body.type,
+  image: req.file ? `/uploads/${req.file.filename}` : req.body.image || "",
+});
+
+exports.getAll = async (req, res) => {
+  try {
+    const predictions = await Prediction.find();
+    res.json(predictions);
+  } catch (error) {
+    res.status(500).json({ message: "Помилка сервера", error: error.message });
+  }
+};
+
+exports.getRandom = async (req, res) => {
+  try {
+    const predictions = await Prediction.find();
+
+    if (!predictions.length) {
+      return res.status(404).json({ message: "Передбачення не знайдено" });
+    }
+
+    const random = predictions[Math.floor(Math.random() * predictions.length)];
+    res.json(random);
+  } catch (error) {
+    res.status(500).json({ message: "Помилка сервера", error: error.message });
+  }
+};
+
+exports.getById = async (req, res) => {
+  try {
+    const prediction = await Prediction.findById(req.params.id);
+
+    if (!prediction) {
+      return res.status(404).json({ message: "Не знайдено" });
+    }
+
+    res.json(prediction);
+  } catch (error) {
+    res.status(500).json({ message: "Помилка сервера", error: error.message });
+  }
+};
+
+exports.create = async (req, res) => {
+  try {
+    const prediction = await Prediction.create(getPredictionData(req));
+    res.status(201).json(prediction);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Помилка створення", error: error.message });
+  }
+};
+
+exports.update = async (req, res) => {
+  try {
+    const prediction = await Prediction.findByIdAndUpdate(
+      req.params.id,
+      getPredictionData(req),
+      { new: true },
+    );
+
+    if (!prediction) {
+      return res.status(404).json({ message: "Не знайдено" });
+    }
+
+    res.json(prediction);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Помилка оновлення", error: error.message });
+  }
+};
+
+exports.remove = async (req, res) => {
+  try {
+    const prediction = await Prediction.findByIdAndDelete(req.params.id);
+
+    if (!prediction) {
+      return res.status(404).json({ message: "Не знайдено" });
+    }
+
+    res.json({ message: "Видалено" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Помилка видалення", error: error.message });
+  }
+};

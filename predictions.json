@@ -1,0 +1,26 @@
+[
+  {
+    "id": 2,
+    "title": "Кохання",
+    "text": "Попереду приємне знайомство.",
+    "image": "https://picsum.photos/600/400?random=2"
+  },
+  {
+    "id": 3,
+    "title": "Подорож",
+    "text": "Незабаром ти вирушиш у цікаву подорож.",
+    "image": "https://picsum.photos/600/400?random=3"
+  },
+  {
+    "id": 4,
+    "title": "Гроші",
+    "text": "Очікуй приємний фінансовий сюрприз.",
+    "image": "https://picsum.photos/600/400?random=4"
+  },
+  {
+    "id": 5,
+    "title": "Навчання",
+    "text": "Нові знання відкриють перед тобою нові можливості.",
+    "image": "https://picsum.photos/600/400?random=5"
+  }
+]
