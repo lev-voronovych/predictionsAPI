@@ -24,11 +24,30 @@ exports.getRandom = async (req, res) => {
       return res.status(404).json({ message: "Передбачення не знайдено" });
     }
 
-    const lastId = req.query.lastId;
-    const available = predictions.filter(
-      (item) => item._id.toString() !== lastId,
-    );
-    const pool = available.length ? available : predictions;
+    let lastIds = [];
+    if (req.query.lastIds) {
+      if (Array.isArray(req.query.lastIds)) {
+        lastIds = req.query.lastIds;
+      } else {
+        lastIds = req.query.lastIds
+          .split(",")
+          .map((id) => id.trim())
+          .filter(Boolean);
+      }
+    } else if (req.query.lastId) {
+      lastIds = [req.query.lastId];
+    }
+
+    let pool = predictions;
+    const recent = lastIds.slice(-2);
+
+    if (recent.length === 2 && recent[0] === recent[1]) {
+      const excludedId = recent[1];
+      const available = predictions.filter(
+        (item) => item._id.toString() !== excludedId,
+      );
+      pool = available.length ? available : predictions;
+    }
 
     const random = pool[Math.floor(Math.random() * pool.length)];
     res.json(random);
