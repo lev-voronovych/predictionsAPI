@@ -3,6 +3,12 @@ const predictionsContainer = document.getElementById("predictions");
 const openModalBtn = document.getElementById("openModalBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
 const instructionModal = document.getElementById("instructionModal");
+const formTitle = document.getElementById("formTitle");
+const predictionIdInput = document.getElementById("predictionId");
+const existingImageInput = document.getElementById("existingImage");
+const submitBtn = document.getElementById("submitBtn");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
+let editingPredictionId = "";
 
 openModalBtn.addEventListener("click", () => {
   instructionModal.classList.remove("hidden");
@@ -38,6 +44,7 @@ async function loadPredictions() {
         <h3>${item.title}</h3>
         <p class="prediction-type">Тип: ${item.type || "—"}</p>
         <p>${item.text}</p>
+        <button class="edit-btn" data-id="${id}">Редагувати</button>
         <button class="delete-btn" data-id="${id}">Видалити</button>
       </div>
     `;
@@ -54,45 +61,88 @@ form.addEventListener("submit", async (e) => {
   const type = document.getElementById("type").value;
   const imageUrl = document.getElementById("image").value.trim();
   const imageFile = document.getElementById("imageFile").files[0];
+  const predictionId = predictionIdInput.value;
 
   const formData = new FormData();
   formData.append("title", title);
   formData.append("text", text);
   formData.append("type", type);
 
-  if (imageUrl) {
-    formData.append("image", imageUrl);
-  }
-
   if (imageFile) {
     formData.append("imageFile", imageFile);
+  } else if (imageUrl) {
+    formData.append("image", imageUrl);
+  } else if (predictionId && existingImageInput.value) {
+    formData.append("image", existingImageInput.value);
   }
 
-  const response = await fetch("/predictions", {
-    method: "POST",
+  const method = predictionId ? "PUT" : "POST";
+  const url = predictionId ? `/predictions/${predictionId}` : "/predictions";
+
+  const response = await fetch(url, {
+    method,
     body: formData,
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    alert(errorData.message || "Не вдалося додати передбачення");
+    alert(errorData.message || "Не вдалося зберегти передбачення");
     return;
   }
 
-  form.reset();
+  resetForm();
   loadPredictions();
 });
 
 predictionsContainer.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("delete-btn")) {
-    const id = e.target.dataset.id;
+  const id = e.target.dataset.id;
 
+  if (e.target.classList.contains("delete-btn")) {
     await fetch(`/predictions/${id}`, {
       method: "DELETE",
     });
 
     loadPredictions();
+    return;
+  }
+
+  if (e.target.classList.contains("edit-btn")) {
+    const response = await fetch(`/predictions/${id}`);
+    if (!response.ok) {
+      alert("Не вдалося отримати передбачення для редагування");
+      return;
+    }
+
+    const prediction = await response.json();
+    startEdit(prediction);
   }
 });
+
+cancelEditBtn.addEventListener("click", resetForm);
+
+function startEdit(prediction) {
+  editingPredictionId = prediction._id || prediction.id;
+  predictionIdInput.value = editingPredictionId;
+  existingImageInput.value = prediction.image || "";
+  document.getElementById("title").value = prediction.title || "";
+  document.getElementById("text").value = prediction.text || "";
+  document.getElementById("type").value = prediction.type || "";
+  document.getElementById("image").value = "";
+  document.getElementById("imageFile").value = "";
+
+  formTitle.textContent = "Редагувати передбачення";
+  submitBtn.textContent = "Зберегти";
+  cancelEditBtn.classList.remove("hidden");
+}
+
+function resetForm() {
+  editingPredictionId = "";
+  predictionIdInput.value = "";
+  existingImageInput.value = "";
+  form.reset();
+  formTitle.textContent = "Додати передбачення";
+  submitBtn.textContent = "Додати";
+  cancelEditBtn.classList.add("hidden");
+}
 
 loadPredictions();

@@ -17,7 +17,9 @@
         <p>Додавай нові передбачення або видаляй уже існуючі.</p>
 
         <form id="predictionForm" class="card form-card">
-            <h2>Додати передбачення</h2>
+            <h2 id="formTitle">Додати передбачення</h2>
+            <input type="hidden" id="predictionId" />
+            <input type="hidden" id="existingImage" />
             <input type="text" id="title" placeholder="Заголовок" required />
             <textarea id="text" placeholder="Текст передбачення" required></textarea>
             <select id="type" required>
@@ -28,7 +30,10 @@
             </select>
             <input type="text" id="image" placeholder="URL зображення (необов'язково)" />
             <input type="file" id="imageFile" name="imageFile" accept="image/*" />
-            <button type="submit">Додати</button>
+            <div class="form-actions">
+                <button type="submit" id="submitBtn">Додати</button>
+                <button type="button" id="cancelEditBtn" class="secondary-btn hidden">Скасувати</button>
+            </div>
         </form>
 
         <div id="predictions" class="predictions"></div>

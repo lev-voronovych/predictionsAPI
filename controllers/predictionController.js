@@ -4,7 +4,7 @@ const getPredictionData = (req) => ({
   title: req.body.title,
   text: req.body.text,
   type: req.body.type,
-  image: req.cloudinaryUrl || req.body.image || "",
+  image: req.cloudinaryUrl || req.body.image || req.body.existingImage || "",
 });
 
 exports.getAll = async (req, res) => {
