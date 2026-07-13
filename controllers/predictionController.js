@@ -39,10 +39,10 @@ exports.getRandom = async (req, res) => {
     }
 
     let pool = predictions;
-    const recent = lastIds.slice(-2);
+    const recent = lastIds.slice(-1);
 
-    if (recent.length === 2 && recent[0] === recent[1]) {
-      const excludedId = recent[1];
+    if (recent.length === 1) {
+      const excludedId = recent[0];
       const available = predictions.filter(
         (item) => item._id.toString() !== excludedId,
       );
