@@ -1,18 +1,11 @@
 const express = require("express");
-const path = require("path");
 const multer = require("multer");
 const router = express.Router();
+const cloudinary = require("../config/cloudinary");
 const controller = require("../controllers/predictionController");
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "..", "uploads"));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
-  },
-});
+// Використовуємо memory storage, потім завантажуємо у Cloudinary
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -27,11 +20,43 @@ const upload = multer({
   },
 });
 
+// Middleware для завантаження на Cloudinary
+const uploadToCloudinary = (req, res, next) => {
+  if (!req.file) {
+    return next();
+  }
+
+  const uploadStream = cloudinary.uploader.upload_stream(
+    { folder: "predictions", resource_type: "auto" },
+    (error, result) => {
+      if (error) {
+        return res
+          .status(400)
+          .json({ message: "Помилка завантаження", error: error.message });
+      }
+      req.cloudinaryUrl = result.secure_url;
+      next();
+    },
+  );
+
+  uploadStream.end(req.file.buffer);
+};
+
 router.get("/", controller.getAll);
 router.get("/random", controller.getRandom);
 router.get("/:id", controller.getById);
-router.post("/", upload.single("imageFile"), controller.create);
-router.put("/:id", upload.single("imageFile"), controller.update);
+router.post(
+  "/",
+  upload.single("imageFile"),
+  uploadToCloudinary,
+  controller.create,
+);
+router.put(
+  "/:id",
+  upload.single("imageFile"),
+  uploadToCloudinary,
+  controller.update,
+);
 router.delete("/:id", controller.remove);
 
 module.exports = router;
